@@ -2,7 +2,7 @@
 This code is for the vision part of a phlebotomy robot. It uses stereo vision to detect the vein's location. This was continuing a project that been done, however not much had been previously done on the vision system.
 
 Libraries that are needed:
-Numpy 1.3
+Numpy 1.12
 OpenCV 3.1
 
 Raspberry Pi Camera are used as that was the avaiable hardware. To get closer to real-time, new hardware is needed for the project. However the software has been optimised. 
