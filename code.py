@@ -212,11 +212,19 @@ def filterImg(r1,r2,p1,p2,q):
     #cv2.resizeWindow('Vein',cols/2, rows/2)
     #cv2.imshow("Vein", vein)
     #cv2.waitKey()
-
+    
+    
+    
+                
     #if the x are out of tolerance, highlight next section to indicate curve
-    points = cv2.findNonZero(vein)
-    points = cv2.findNonZero(vein)
+    #points = cv2.findNonZero(vein)
+    #points = cv2.findNonZero(vein)
     #change skel to rgb
+    imgPtsL = longestLine(imgL, rows, cols)
+    imgPtsR = longestLine(imgR, rows, cols)
+
+    ########################################--------------------Stopped here
+    
     colorImg = cv2.cvtColor(skel, cv2.COLOR_GRAY2RGB)
     randClr = [0,0,0]
     rangepts = points.shape[0]
@@ -247,11 +255,30 @@ def filterImg(r1,r2,p1,p2,q):
 
 
 
-
-
-
-
-
+def longestLine(img, rows, cols):
+    notDone = False
+    search = []
+    visited = []
+    oldVisited = []
+    for u in range(0,cols):
+        for u in range(0,rows):
+            if (img[u,v] == 0):
+                notDone = True
+                img[u,v] == 255
+                search.append[[u,v]]
+            while(notDone):
+                if (len(search)==0):
+                    notDone == False
+                search.pop(0)
+                visited.append([u,v])
+                for w in range(-1,1):
+                    for z in range(-1,1):
+                        if((img[u,v]|img[w,z])==1):
+                            search.append([w,x])
+                            img[w,z] = 255
+            if(len(oldVisited) < len(visited)): #might need a null check here
+                oldVisited = visited
+    return oldVisited
 def photoCapture(a):
     GPIO.output(7,0)
     GPIO.output(11,0)
