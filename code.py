@@ -204,8 +204,8 @@ def filterImg(r1,r2,p1,p2,q):
             finished = True
 
 
-    veinL = skelL
-    veinR = skelR
+    #veinL = skelL
+    #veinR = skelR
     #vein = vein.astype(numpy.uint8)
     #over = cv2.addWeighted(img, .5, vein, .5, 0.0)
     #cv2.namedWindow('Vein', cv2.WINDOW_NORMAL)
@@ -220,11 +220,43 @@ def filterImg(r1,r2,p1,p2,q):
     #points = cv2.findNonZero(vein)
     #points = cv2.findNonZero(vein)
     #change skel to rgb
+    #finds the longest line that should be the vein and eliminates the other noise
     imgPtsL = longestLine(imgL, rows, cols)
     imgPtsR = longestLine(imgR, rows, cols)
-
+    cXL = 0 
+    cYL = 0
+    cXR = 0
+    cYR = 0
+    numOfPts = len(imgPtsL)
+    for img in range(0, numOfPts):
+        cXL = cXL + (imgPtsL[img])[0] 
+        cYL = cYL + (imgPtsL[img])[1]
+        cXR = cXR + (imgPtsR[img])[0]
+        cYR = cYR + (imgPtsR[img])[1]
+    cXL = cXL/numOfPts
+    cYL = cYL/numOfPts
+    cXR = cXR/numOfPts
+    cYR = cYR/numOfPts
     ########################################--------------------Stopped here
+    #this code is for displaying the vein line on the images. 
+    veinImage(skel, False) #if set to true, will return image that can be displayed
     
+    
+    #Finding real world point with disparity map (trajectory is in mm)
+    stereo = cv2.StereoBM_create(numDisparities = 16, blockSize = 15)
+    disparity = stereo.compute(img1, img2)
+    difference = disparity(x,y)
+    vectorPts = [cXL,cYL,difference(cXL,cYL),1]
+    realWorldPts = Q*vectorPts
+    realWorldPts_Normalized = [realWorldPts[0]/realWorldPts[3] , realWorldPts[1]/realWorldPts[3], realWorldPts[2]/realWorldPts[3]]
+    print "Real world point in mm:"
+    print realWorldPts_Normalized
+
+    #points = Q*[x,y,disparity(x,y),1] #might need to tranpose Q
+    #finalPoint = [points[0]/points[3],points[1]/points[3],points[2]/points[3]]
+    return realWorldPts_Normalized
+
+def veinImage(skel, ret):
     colorImg = cv2.cvtColor(skel, cv2.COLOR_GRAY2RGB)
     randClr = [0,0,0]
     rangepts = points.shape[0]
@@ -238,22 +270,15 @@ def filterImg(r1,r2,p1,p2,q):
             #change color
             print "change"
             randClr = [clr+10, 0, 200]
-            #randClr = [randint(10, 225),randint(10, 225),randint(10, 225)]
             a = points[i,0][0]
         colorImg[ypt,xpt] = randClr
-    #figure out camera calibrations
+
     ori = cv2.imread('capture_1.jpg')
 
     colorImg = colorImg.astype(numpy.uint8)
     over = cv2.addWeighted(ori, .5, colorImg, .5, 0.0)
-    #rectify here
-
-
-    points = Q*[x,y,disparity(x,y),1] #might need to tranpose Q
-    finalPoint = [points[0]/points[3],points[1]/points[3],points[2]/points[3]]
-    return finalPoint
-
-
+    if (ret):
+        return over
 
 def longestLine(img, rows, cols):
     notDone = False
