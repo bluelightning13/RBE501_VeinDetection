@@ -1,3 +1,11 @@
+
+'''
+Author: Meagan Hiatt
+For RBE501 Final Project
+
+This code was designed to the image processing for a robot that would draw blood.
+The code returned the 3D point where the vein is located. 
+'''
 import cv2
 import numpy
 from random import randint
